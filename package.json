@@ -1,0 +1,23 @@
+{
+	"name": "tui",
+	"module": "src/index.tsx",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build:schema": "bun run scripts/generate-schema.ts",
+		"dev": "bun run build:schema && bun run --watch src/index.ts",
+		"build": "bun run build:schema"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@catppuccin/palette": "^1.7.1",
+		"@opentui/core": "^0.1.63",
+		"zod": "^4.2.1"
+	}
+}
+

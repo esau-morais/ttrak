@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "default": "./data.schema.json",
+      "type": "string"
+    },
+    "version": {
+      "default": 1,
+      "type": "number"
+    },
+    "tasks": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(LOCAL|[A-Z]+)-\\d+$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "todo",
+              "inProgress",
+              "done",
+              "cancelled"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "none",
+              "low",
+              "medium",
+              "high",
+              "urgent"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "linear": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "syncedAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "url",
+              "syncedAt"
+            ],
+            "additionalProperties": false
+          },
+          "github": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "issue",
+                  "pr"
+                ]
+              },
+              "number": {
+                "type": "number"
+              },
+              "url": {
+                "type": "string"
+              },
+              "syncedAt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "number",
+              "url",
+              "syncedAt"
+            ],
+            "additionalProperties": false
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dueDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "priority",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "lastSync": {
+      "default": null,
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "$schema",
+    "version",
+    "tasks",
+    "lastSync"
+  ],
+  "additionalProperties": false
+}

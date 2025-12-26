@@ -1,9 +1,14 @@
 import { homedir } from "os";
 import { join } from "path";
 import { mkdir } from "fs/promises";
-import { DataStoreSchema, ConfigStoreSchema, type DataStore, type ConfigStore } from "../schema";
+import {
+  DataStoreSchema,
+  ConfigStoreSchema,
+  type DataStore,
+  type ConfigStore,
+} from "../schema";
 
-const CONFIG_DIR = join(homedir(), ".config", "trak");
+const CONFIG_DIR = join(homedir(), ".config", "ttrak");
 const DATA_PATH = join(CONFIG_DIR, "data.json");
 const CONFIG_PATH = join(CONFIG_DIR, "config.json");
 

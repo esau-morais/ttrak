@@ -148,7 +148,7 @@ export class TaskListView {
   private getHeaderText(): string {
     const filtered = this.getFilteredTasks();
     const total = this.store.tasks.length;
-    return ` TRAK - ${filtered.length}/${total} tasks`;
+    return ` TTRAK - ${filtered.length}/${total} tasks`;
   }
 
   private getFilteredTasks(): Task[] {

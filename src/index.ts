@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 import { createCliRenderer } from "@opentui/core";
 import { loadDataStore, loadConfigStore } from "./data/store";
 import { getTheme } from "./ui/theme";

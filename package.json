@@ -1,12 +1,17 @@
 {
-	"name": "tui",
-	"module": "src/index.tsx",
+	"name": "ttrak",
+	"version": "0.1.0",
+	"description": "A terminal task tracker",
+	"module": "src/index.ts",
 	"type": "module",
-	"private": true,
+	"bin": {
+		"ttrak": "./src/index.ts"
+	},
 	"scripts": {
 		"build:schema": "bun run scripts/generate-schema.ts",
 		"dev": "bun run build:schema && bun run --watch src/index.ts",
-		"build": "bun run build:schema"
+		"build": "bun run build:schema",
+		"prepublishOnly": "bun run build"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"
@@ -18,6 +23,15 @@
 		"@catppuccin/palette": "^1.7.1",
 		"@opentui/core": "^0.1.63",
 		"zod": "^4.2.1"
-	}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/emots/ttrak.git"
+	},
+	"keywords": ["terminal", "task", "tracker", "tui", "cli"],
+	"author": "",
+	"license": "MIT"
 }
-

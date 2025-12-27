@@ -1,6 +1,6 @@
 {
 	"name": "ttrak",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A terminal task tracker",
 	"module": "src/index.ts",
 	"type": "module",
@@ -32,7 +32,13 @@
 		"type": "git",
 		"url": "git+https://github.com/emots/ttrak.git"
 	},
-	"keywords": ["terminal", "task", "tracker", "tui", "cli"],
-	"author": "",
+	"keywords": [
+		"terminal",
+		"task",
+		"tracker",
+		"tui",
+		"cli"
+	],
+	"author": "Esau Morais <esaumorais7@gmail.com> (https://emots.dev)",
 	"license": "MIT"
 }

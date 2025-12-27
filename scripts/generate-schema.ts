@@ -1,4 +1,4 @@
-import { DataStoreSchema, ConfigStoreSchema } from "../src/schema";
+import { ConfigStoreSchema, DataStoreSchema } from "../src/schema";
 
 const dataJsonSchema = DataStoreSchema.toJSONSchema();
 const configJsonSchema = ConfigStoreSchema.toJSONSchema();

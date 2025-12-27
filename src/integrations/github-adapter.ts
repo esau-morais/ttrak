@@ -166,20 +166,36 @@ export async function syncGitHub(config: GitHubConfig): Promise<Task[]> {
 		const syncAuthoredPRs = config.syncAuthoredPRs ?? true;
 		const [owner, repo] = config.repo.split("/");
 
+		if (!owner || !repo) {
+			throw new Error(
+				`Invalid repo format: ${config.repo}. Expected "owner/repo"`,
+			);
+		}
+
 		const allItems: GitHubIssue[] = [];
 
 		if (syncAssignedIssues) {
-			const url = new URL("https://api.github.com/issues");
-			url.searchParams.set("filter", "assigned");
-			url.searchParams.set("state", "all");
+			const username = await getAuthenticatedUser(config.token);
+			const query = `is:issue assignee:${username} repo:${owner}/${repo}`;
+			const url = new URL("https://api.github.com/search/issues");
+			url.searchParams.set("q", query);
 			url.searchParams.set("per_page", "100");
 
-			const { data } = await fetchFromGitHub(url.toString(), config.token);
-			const repoIssues = data.filter(
-				(item) =>
-					!item.pull_request && item.html_url.includes(`/${owner}/${repo}/`),
-			);
-			allItems.push(...repoIssues);
+			const response = await fetch(url.toString(), {
+				headers: {
+					Authorization: `Bearer ${config.token}`,
+					Accept: "application/vnd.github+json",
+					"X-GitHub-Api-Version": "2022-11-28",
+					"User-Agent": "ttrak-tui",
+				},
+			});
+
+			if (response.ok) {
+				const searchResults = (await response.json()) as {
+					items: GitHubIssue[];
+				};
+				allItems.push(...searchResults.items);
+			}
 		} else {
 			const response = await fetchGitHubIssues(config);
 			const issues = response.data.filter((item) => !item.pull_request);
@@ -218,7 +234,10 @@ export async function syncGitHub(config: GitHubConfig): Promise<Task[]> {
 			transformGitHubIssueToTask(item, config.repo),
 		);
 	} catch (error) {
-		console.error("GitHub sync failed:", error);
-		return [];
+		console.error(
+			"GitHub sync failed:",
+			error instanceof Error ? error.message : String(error),
+		);
+		throw error;
 	}
 }

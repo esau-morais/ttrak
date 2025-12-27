@@ -6,6 +6,7 @@ export interface SyncResult {
 	newTasks: Task[];
 	updatedTasks: Task[];
 	errors: string[];
+	succeededServices: ("github" | "linear")[];
 }
 
 export async function syncAll(
@@ -16,6 +17,7 @@ export async function syncAll(
 		newTasks: [],
 		updatedTasks: [],
 		errors: [],
+		succeededServices: [],
 	};
 
 	if (!config.integrations?.sync?.enabled) {
@@ -29,6 +31,7 @@ export async function syncAll(
 			syncGitHub(config.integrations.github)
 				.then((tasks) => {
 					mergeTasks(tasks, store, result);
+					result.succeededServices.push("github");
 				})
 				.catch((error) => {
 					result.errors.push(`GitHub: ${error.message}`);
@@ -41,6 +44,7 @@ export async function syncAll(
 			syncLinear(config.integrations.linear)
 				.then((tasks) => {
 					mergeTasks(tasks, store, result);
+					result.succeededServices.push("linear");
 				})
 				.catch((error) => {
 					result.errors.push(`Linear: ${error.message}`);

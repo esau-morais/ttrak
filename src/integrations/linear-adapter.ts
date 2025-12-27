@@ -96,7 +96,10 @@ export async function syncLinear(config: LinearConfig): Promise<Task[]> {
 		);
 		return tasks;
 	} catch (error) {
-		console.error("Linear sync failed:", error);
-		return [];
+		console.error(
+			"Linear sync failed:",
+			error instanceof Error ? error.message : String(error),
+		);
+		throw error;
 	}
 }

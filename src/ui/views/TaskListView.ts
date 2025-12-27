@@ -504,15 +504,18 @@ export class TaskListView {
 				this.footer.fg = this.theme.success;
 			}
 
-			if (config.integrations?.github) {
-				updateLastSyncTime(config, "github");
-			}
-			if (config.integrations?.linear) {
-				updateLastSyncTime(config, "linear");
+			for (const service of result.succeededServices) {
+				updateLastSyncTime(config, service);
 			}
 
-			await saveConfigStore(config);
-			await saveDataStore(this.store);
+			if (result.newTasks.length > 0 || result.updatedTasks.length > 0) {
+				await saveDataStore(this.store);
+			}
+
+			if (result.succeededServices.length > 0) {
+				await saveConfigStore(config);
+			}
+
 			this.renderTasks();
 
 			setTimeout(() => {

@@ -61,20 +61,16 @@ async function main() {
 		try {
 			const result = await syncAll(configStore, dataStore);
 
-			if (
-				result.errors.length === 0 &&
-				(result.newTasks.length > 0 || result.updatedTasks.length > 0)
-			) {
-				if (configStore.integrations?.github) {
-					updateLastSyncTime(configStore, "github");
-				}
-				if (configStore.integrations?.linear) {
-					updateLastSyncTime(configStore, "linear");
-				}
-				await Promise.all([
-					saveDataStore(dataStore),
-					saveConfigStore(configStore),
-				]);
+			for (const service of result.succeededServices) {
+				updateLastSyncTime(configStore, service);
+			}
+
+			if (result.newTasks.length > 0 || result.updatedTasks.length > 0) {
+				await saveDataStore(dataStore);
+			}
+
+			if (result.succeededServices.length > 0) {
+				await saveConfigStore(configStore);
 			}
 		} catch (error) {
 			console.error("Startup sync failed:", error);

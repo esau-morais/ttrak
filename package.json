@@ -21,6 +21,7 @@
 	},
 	"dependencies": {
 		"@catppuccin/palette": "^1.7.1",
+		"@linear/sdk": "^68.1.0",
 		"@opentui/core": "^0.1.63",
 		"zod": "^4.2.1"
 	},

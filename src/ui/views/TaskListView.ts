@@ -7,11 +7,12 @@ import {
   type CliRenderer,
   type KeyEvent,
 } from "@opentui/core";
-import type { Task, DataStore } from "../../schema";
+import type { Task, DataStore, ConfigStore } from "../../schema";
 import type { Theme } from "../theme";
 import { TaskItem } from "../components/TaskItem";
 import { TaskModal, type TaskModalResult } from "../components/TaskModal";
-import { saveDataStore } from "../../data/store";
+import { saveDataStore, loadConfigStore, saveConfigStore } from "../../data/store";
+import { syncAll, updateLastSyncTime } from "../../integrations/sync-manager";
 
 type FilterTab = "all" | "todo" | "inProgress" | "done";
 
@@ -35,18 +36,22 @@ export class TaskListView {
   private modalOpen = false;
   private confirmDelete = false;
   private searchMode = false;
+  private syncing = false;
   private onQuit: () => void;
+  private onSetup?: () => void;
 
   constructor(
     renderer: CliRenderer,
     theme: Theme,
     store: DataStore,
     onQuit: () => void,
+    onSetup?: () => void,
   ) {
     this.renderer = renderer;
     this.theme = theme;
     this.store = store;
     this.onQuit = onQuit;
+    this.onSetup = onSetup;
     this.boundHandleKeyPress = this.handleKeyPress.bind(this);
 
     this.container = new BoxRenderable(renderer, {
@@ -124,7 +129,7 @@ export class TaskListView {
     this.footer = new TextRenderable(renderer, {
       id: "footer",
       content:
-        "/:search  j/k:nav  n:new  e:edit  d:del  space:status  1-4:filter  q:quit",
+        "/:search  j/k:nav  n:new  e:edit  d:del  s:sync  i:setup  1-4:filter  q:quit",
       fg: theme.muted,
       height: 1,
       flexShrink: 0,
@@ -233,12 +238,12 @@ export class TaskListView {
         this.deleteSelectedTask();
         this.confirmDelete = false;
         this.footer.content =
-          "/:search  j/k:nav  n:new  e:edit  d:del  space:status  1-4:filter  q:quit";
+          "/:search  j/k:nav  n:new  e:edit  d:del  s:sync  space:status  1-4:filter  q:quit";
         this.footer.fg = this.theme.muted;
       } else if (key.name === "n" || key.name === "escape") {
         this.confirmDelete = false;
         this.footer.content =
-          "/:search  j/k:nav  n:new  e:edit  d:del  space:status  1-4:filter  q:quit";
+          "/:search  j/k:nav  n:new  e:edit  d:del  s:sync  space:status  1-4:filter  q:quit";
         this.footer.fg = this.theme.muted;
       }
       return;
@@ -296,6 +301,12 @@ export class TaskListView {
         break;
       case "4":
         this.setFilter(3);
+        break;
+      case "s":
+        this.syncTasks();
+        break;
+      case "i":
+        this.onSetup?.();
         break;
       case "q":
         this.destroy();
@@ -363,6 +374,7 @@ export class TaskListView {
       title: data.title,
       status: data.status,
       priority: data.priority,
+      source: "local",
       createdAt: now,
       updatedAt: now,
     };
@@ -416,6 +428,49 @@ export class TaskListView {
     await saveDataStore(this.store);
     this.renderTasks();
     this.footer.fg = this.theme.muted;
+  }
+
+  private async syncTasks() {
+    if (this.syncing) return;
+    
+    this.syncing = true;
+    this.footer.content = "Syncing...";
+    this.footer.fg = this.theme.accent;
+
+    try {
+      const config = await loadConfigStore();
+      const result = await syncAll(config, this.store);
+
+      if (result.errors.length > 0) {
+        this.footer.content = `Sync errors: ${result.errors.join(", ")}`;
+        this.footer.fg = this.theme.error;
+      } else {
+        const msg = `Synced: ${result.newTasks.length} new, ${result.updatedTasks.length} updated`;
+        this.footer.content = msg;
+        this.footer.fg = this.theme.success;
+      }
+
+      if (config.integrations?.github) {
+        updateLastSyncTime(config, "github");
+      }
+      if (config.integrations?.linear) {
+        updateLastSyncTime(config, "linear");
+      }
+
+      await saveConfigStore(config);
+      await saveDataStore(this.store);
+      this.renderTasks();
+
+      setTimeout(() => {
+        this.footer.content = "/:search  j/k:nav  n:new  e:edit  d:del  s:sync  space:status  1-4:filter  q:quit";
+        this.footer.fg = this.theme.muted;
+      }, 3000);
+    } catch (error) {
+      this.footer.content = `Sync failed: ${error instanceof Error ? error.message : "Unknown error"}`;
+      this.footer.fg = this.theme.error;
+    } finally {
+      this.syncing = false;
+    }
   }
 
   destroy() {

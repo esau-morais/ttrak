@@ -53,6 +53,18 @@
           "updatedAt": {
             "type": "string"
           },
+          "source": {
+            "default": "local",
+            "type": "string",
+            "enum": [
+              "local",
+              "github",
+              "linear"
+            ]
+          },
+          "externalId": {
+            "type": "string"
+          },
           "linear": {
             "type": "object",
             "properties": {
@@ -60,6 +72,12 @@
                 "type": "string"
               },
               "url": {
+                "type": "string"
+              },
+              "teamId": {
+                "type": "string"
+              },
+              "externalStatus": {
                 "type": "string"
               },
               "syncedAt": {
@@ -86,7 +104,13 @@
               "number": {
                 "type": "number"
               },
+              "repo": {
+                "type": "string"
+              },
               "url": {
+                "type": "string"
+              },
+              "externalStatus": {
                 "type": "string"
               },
               "syncedAt": {
@@ -96,6 +120,7 @@
             "required": [
               "type",
               "number",
+              "repo",
               "url",
               "syncedAt"
             ],
@@ -117,28 +142,17 @@
           "status",
           "priority",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "source"
         ],
         "additionalProperties": false
       }
-    },
-    "lastSync": {
-      "default": null,
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ]
     }
   },
   "required": [
     "$schema",
     "version",
-    "tasks",
-    "lastSync"
+    "tasks"
   ],
   "additionalProperties": false
 }

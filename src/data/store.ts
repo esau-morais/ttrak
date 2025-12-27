@@ -40,7 +40,7 @@ export async function saveDataStore(store: DataStore): Promise<void> {
 
   const { $schema, ...rest } = store;
   const output = {
-    $schema: "./data.schema.json",
+    $schema: "https://raw.githubusercontent.com/esau-morais/ttrak/main/data.schema.json",
     ...rest,
   };
 
@@ -48,11 +48,16 @@ export async function saveDataStore(store: DataStore): Promise<void> {
 }
 
 export async function loadConfigStore(): Promise<ConfigStore> {
-  await ensureConfigDir();
-
   try {
-    const raw = await Bun.file(CONFIG_PATH).text();
-    const data = JSON.parse(raw);
+    await ensureConfigDir();
+
+    if (!(await Bun.file(CONFIG_PATH).exists())) {
+      const defaultConfig = ConfigStoreSchema.parse({});
+      await saveConfigStore(defaultConfig);
+      return defaultConfig;
+    }
+
+    const data = await Bun.file(CONFIG_PATH).json();
     const result = ConfigStoreSchema.safeParse(data);
 
     if (!result.success) {
@@ -60,7 +65,17 @@ export async function loadConfigStore(): Promise<ConfigStore> {
       return ConfigStoreSchema.parse({});
     }
 
-    return result.data;
+    const config = result.data;
+
+    if (config.integrations?.github && !config.integrations.github.token) {
+      config.integrations.github.token = process.env.GITHUB_TOKEN || "";
+    }
+
+    if (config.integrations?.linear && !config.integrations.linear.apiKey) {
+      config.integrations.linear.apiKey = process.env.LINEAR_API_KEY || "";
+    }
+
+    return config;
   } catch (error) {
     return ConfigStoreSchema.parse({});
   }
@@ -69,9 +84,10 @@ export async function loadConfigStore(): Promise<ConfigStore> {
 export async function saveConfigStore(store: ConfigStore): Promise<void> {
   await ensureConfigDir();
 
+  const { $schema, ...rest } = store;
   const output = {
-    ...store,
-    $schema: "./config.schema.json",
+    $schema: "https://raw.githubusercontent.com/esau-morais/ttrak/main/config.schema.json",
+    ...rest,
   };
 
   await Bun.write(CONFIG_PATH, JSON.stringify(output, null, 2));

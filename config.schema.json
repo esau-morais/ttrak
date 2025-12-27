@@ -10,6 +10,80 @@
       "default": 1,
       "type": "number"
     },
+    "integrations": {
+      "type": "object",
+      "properties": {
+        "github": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "repo": {
+              "type": "string"
+            },
+            "syncInterval": {
+              "default": 30,
+              "type": "number"
+            }
+          },
+          "required": [
+            "token",
+            "repo",
+            "syncInterval"
+          ],
+          "additionalProperties": false
+        },
+        "linear": {
+          "type": "object",
+          "properties": {
+            "apiKey": {
+              "type": "string"
+            },
+            "teamId": {
+              "type": "string"
+            },
+            "syncInterval": {
+              "default": 30,
+              "type": "number"
+            },
+            "syncOnlyAssigned": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "apiKey",
+            "syncInterval",
+            "syncOnlyAssigned"
+          ],
+          "additionalProperties": false
+        },
+        "sync": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "lastSync": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "enabled"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "linear": {
       "type": "object",
       "properties": {

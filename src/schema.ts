@@ -8,10 +8,14 @@ export const TaskSchema = z.object({
   priority: z.enum(["none", "low", "medium", "high", "urgent"]),
   createdAt: z.string(),
   updatedAt: z.string(),
+  source: z.enum(["local", "github", "linear"]).default("local"),
+  externalId: z.string().optional(),
   linear: z
     .object({
       id: z.string(),
       url: z.string(),
+      teamId: z.string().optional(),
+      externalStatus: z.string().optional(),
       syncedAt: z.string(),
     })
     .optional(),
@@ -19,7 +23,9 @@ export const TaskSchema = z.object({
     .object({
       type: z.enum(["issue", "pr"]),
       number: z.number(),
+      repo: z.string(),
       url: z.string(),
+      externalStatus: z.string().optional(),
       syncedAt: z.string(),
     })
     .optional(),
@@ -37,12 +43,36 @@ export const DataStoreSchema = z.object({
   $schema: z.string().default("./data.schema.json"),
   version: z.number().default(1),
   tasks: z.array(TaskSchema).default([]),
-  lastSync: z.string().nullable().default(null),
 });
 
 export const ConfigStoreSchema = z.object({
   $schema: z.string().default("./config.schema.json"),
   version: z.number().default(1),
+  integrations: z
+    .object({
+      github: z
+        .object({
+          token: z.string(),
+          repo: z.string(),
+          syncInterval: z.number().default(30),
+        })
+        .optional(),
+      linear: z
+        .object({
+          apiKey: z.string(),
+          teamId: z.string().optional(),
+          syncInterval: z.number().default(30),
+          syncOnlyAssigned: z.boolean().default(true),
+        })
+        .optional(),
+      sync: z
+        .object({
+          enabled: z.boolean().default(false),
+          lastSync: z.record(z.string(), z.string()).optional(),
+        })
+        .optional(),
+    })
+    .optional(),
   linear: z
     .object({
       apiKey: z.string(),

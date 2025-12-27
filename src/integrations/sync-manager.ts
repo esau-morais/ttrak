@@ -71,11 +71,7 @@ function mergeTasks(
 			if (!existing) continue;
 
 			if (new Date(task.updatedAt) > new Date(existing.updatedAt)) {
-				store.tasks[existingIndex] = {
-					...task,
-					status: existing.status,
-					priority: existing.priority,
-				};
+				store.tasks[existingIndex] = task;
 				result.updatedTasks.push(task);
 			}
 		} else {

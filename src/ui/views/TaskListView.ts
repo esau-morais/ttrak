@@ -20,6 +20,9 @@ import type { Theme } from "../theme";
 
 type FilterTab = "all" | "todo" | "inProgress" | "done";
 
+const DEFAULT_FOOTER =
+	"/:search  j/k:nav  n:new  e:edit  d:del  o:open  s:sync  space:status  1-4:filter  q:quit";
+
 export class TaskListView {
 	private renderer: CliRenderer;
 	private theme: Theme;
@@ -132,8 +135,7 @@ export class TaskListView {
 
 		this.footer = new TextRenderable(renderer, {
 			id: "footer",
-			content:
-				"/:search  j/k:nav  n:new  e:edit  d:del  s:sync  i:setup  1-4:filter  q:quit",
+			content: DEFAULT_FOOTER,
 			fg: theme.muted,
 			height: 1,
 			flexShrink: 0,
@@ -243,13 +245,11 @@ export class TaskListView {
 			if (key.name === "y") {
 				this.deleteSelectedTask();
 				this.confirmDelete = false;
-				this.footer.content =
-					"/:search  j/k:nav  n:new  e:edit  d:del  s:sync  space:status  1-4:filter  q:quit";
+				this.footer.content = DEFAULT_FOOTER;
 				this.footer.fg = this.theme.muted;
 			} else if (key.name === "n" || key.name === "escape") {
 				this.confirmDelete = false;
-				this.footer.content =
-					"/:search  j/k:nav  n:new  e:edit  d:del  s:sync  space:status  1-4:filter  q:quit";
+				this.footer.content = DEFAULT_FOOTER;
 				this.footer.fg = this.theme.muted;
 			}
 			return;
@@ -313,6 +313,9 @@ export class TaskListView {
 				break;
 			case "i":
 				this.onSetup?.();
+				break;
+			case "o":
+				this.openInBrowser();
 				break;
 			case "q":
 				this.destroy();
@@ -436,6 +439,51 @@ export class TaskListView {
 		this.footer.fg = this.theme.muted;
 	}
 
+	private openInBrowser() {
+		const taskItem = this.taskItems[this.selectedIndex];
+		if (!taskItem) return;
+
+		const task = taskItem.getTask();
+		let url: string | undefined;
+
+		if (task.github?.url) {
+			url = task.github.url;
+		} else if (task.linear?.url) {
+			url = task.linear.url;
+		}
+
+		if (!url) {
+			this.footer.content = "No external URL for this task";
+			this.footer.fg = this.theme.warning;
+			setTimeout(() => {
+				this.footer.content = DEFAULT_FOOTER;
+				this.footer.fg = this.theme.muted;
+			}, 2000);
+			return;
+		}
+
+		const platform = process.platform;
+		const command =
+			platform === "darwin"
+				? "open"
+				: platform === "win32"
+					? "start"
+					: "xdg-open";
+
+		try {
+			Bun.spawn([command, url], { stdout: "ignore", stderr: "ignore" });
+			this.footer.content = "Opened in browser";
+			this.footer.fg = this.theme.success;
+			setTimeout(() => {
+				this.footer.content = DEFAULT_FOOTER;
+				this.footer.fg = this.theme.muted;
+			}, 2000);
+		} catch (error) {
+			this.footer.content = `Failed to open browser: ${error instanceof Error ? error.message : "Unknown error"}`;
+			this.footer.fg = this.theme.error;
+		}
+	}
+
 	private async syncTasks() {
 		if (this.syncing) return;
 
@@ -468,8 +516,7 @@ export class TaskListView {
 			this.renderTasks();
 
 			setTimeout(() => {
-				this.footer.content =
-					"/:search  j/k:nav  n:new  e:edit  d:del  s:sync  space:status  1-4:filter  q:quit";
+				this.footer.content = DEFAULT_FOOTER;
 				this.footer.fg = this.theme.muted;
 			}, 3000);
 		} catch (error) {

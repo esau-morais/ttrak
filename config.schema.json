@@ -25,9 +25,23 @@
 						"syncInterval": {
 							"default": 30,
 							"type": "number"
+						},
+						"syncAssignedIssues": {
+							"default": false,
+							"type": "boolean"
+						},
+						"syncAuthoredPRs": {
+							"default": true,
+							"type": "boolean"
 						}
 					},
-					"required": ["token", "repo", "syncInterval"],
+					"required": [
+						"token",
+						"repo",
+						"syncInterval",
+						"syncAssignedIssues",
+						"syncAuthoredPRs"
+					],
 					"additionalProperties": false
 				},
 				"linear": {

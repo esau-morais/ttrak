@@ -445,6 +445,8 @@ export class IntegrationSetup {
 				token: githubToken,
 				repo: githubRepo,
 				syncInterval: 30,
+				syncAssignedIssues: false,
+				syncAuthoredPRs: true,
 			};
 		} else {
 			delete this.config.integrations.github;

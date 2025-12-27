@@ -55,6 +55,8 @@ export const ConfigStoreSchema = z.object({
 					token: z.string(),
 					repo: z.string(),
 					syncInterval: z.number().default(30),
+					syncAssignedIssues: z.boolean().default(false),
+					syncAuthoredPRs: z.boolean().default(true),
 				})
 				.optional(),
 			linear: z

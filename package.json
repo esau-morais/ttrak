@@ -1,6 +1,6 @@
 {
 	"name": "ttrak",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "A terminal task tracker",
 	"module": "src/index.ts",
 	"type": "module",

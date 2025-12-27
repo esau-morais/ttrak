@@ -95,7 +95,8 @@ export class IntegrationSetup {
 
 		this.githubTokenLabel = new TextRenderable(renderer, {
 			id: "github-token-label",
-			content: "GitHub Token (github.com/settings/tokens):",
+			content:
+				"GitHub Token (https://github.com/settings/personal-access-tokens):",
 			fg: theme.fg,
 			height: 1,
 		});
@@ -153,7 +154,7 @@ export class IntegrationSetup {
 
 		this.linearTokenLabel = new TextRenderable(renderer, {
 			id: "linear-token-label",
-			content: "Linear API Key (linear.app/settings/api):",
+			content: "Linear API Key (https://linear.app/settings/account/security):",
 			fg: theme.fg,
 			height: 1,
 		});

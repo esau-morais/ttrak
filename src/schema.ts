@@ -75,18 +75,6 @@ export const ConfigStoreSchema = z.object({
 				.optional(),
 		})
 		.optional(),
-	linear: z
-		.object({
-			apiKey: z.string(),
-			teamId: z.string().optional(),
-		})
-		.optional(),
-	github: z
-		.object({
-			token: z.string(),
-			repo: z.string().optional(),
-		})
-		.optional(),
 	theme: ThemeConfigSchema.default({ mode: "auto", flavor: "mocha" }),
 	defaultView: z.enum(["all", "todo", "inProgress", "done"]).default("all"),
 });

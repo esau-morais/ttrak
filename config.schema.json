@@ -88,32 +88,6 @@
 			},
 			"additionalProperties": false
 		},
-		"linear": {
-			"type": "object",
-			"properties": {
-				"apiKey": {
-					"type": "string"
-				},
-				"teamId": {
-					"type": "string"
-				}
-			},
-			"required": ["apiKey"],
-			"additionalProperties": false
-		},
-		"github": {
-			"type": "object",
-			"properties": {
-				"token": {
-					"type": "string"
-				},
-				"repo": {
-					"type": "string"
-				}
-			},
-			"required": ["token"],
-			"additionalProperties": false
-		},
 		"theme": {
 			"default": {
 				"mode": "auto",

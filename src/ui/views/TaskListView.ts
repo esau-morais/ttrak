@@ -13,7 +13,7 @@ import {
 	saveDataStore,
 } from "../../data/store";
 import { syncAll, updateLastSyncTime } from "../../integrations/sync-manager";
-import type { ConfigStore, DataStore, Task } from "../../schema";
+import type { DataStore, Task } from "../../schema";
 import { TaskItem } from "../components/TaskItem";
 import { TaskModal, type TaskModalResult } from "../components/TaskModal";
 import type { Theme } from "../theme";
@@ -181,7 +181,9 @@ export class TaskListView {
 	}
 
 	private renderTasks() {
-		this.taskItems.forEach((item) => item.destroy());
+		this.taskItems.forEach((item) => {
+			item.destroy();
+		});
 		this.taskItems = [];
 
 		const tasks = this.getFilteredTasks();
@@ -480,7 +482,9 @@ export class TaskListView {
 
 	destroy() {
 		this.renderer.keyInput.off("keypress", this.boundHandleKeyPress);
-		this.taskItems.forEach((item) => item.destroy());
+		this.taskItems.forEach((item) => {
+			item.destroy();
+		});
 		this.modal.destroy();
 		this.container.destroy();
 	}

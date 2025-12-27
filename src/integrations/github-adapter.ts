@@ -79,7 +79,7 @@ export async function fetchGitHubIssues(
 		if (response.status === 403) {
 			const resetTime = response.headers.get("x-ratelimit-reset");
 			throw new Error(
-				`Rate limit exceeded. Resets at ${resetTime ? new Date(parseInt(resetTime) * 1000).toISOString() : "unknown"}`,
+				`Rate limit exceeded. Resets at ${resetTime ? new Date(parseInt(resetTime, 10) * 1000).toISOString() : "unknown"}`,
 			);
 		}
 		throw new Error(
@@ -89,8 +89,11 @@ export async function fetchGitHubIssues(
 
 	const data = (await response.json()) as GitHubIssue[];
 	const rateLimit = {
-		remaining: parseInt(response.headers.get("x-ratelimit-remaining") || "0"),
-		reset: parseInt(response.headers.get("x-ratelimit-reset") || "0"),
+		remaining: parseInt(
+			response.headers.get("x-ratelimit-remaining") || "0",
+			10,
+		),
+		reset: parseInt(response.headers.get("x-ratelimit-reset") || "0", 10),
 	};
 
 	return { data, rateLimit };

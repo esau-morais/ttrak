@@ -363,7 +363,7 @@ export class IntegrationSetup {
 				this.statusText.content = "✗ GitHub token invalid";
 				this.statusText.fg = this.theme.error;
 			}
-		} catch (error) {
+		} catch (_error) {
 			this.statusText.content = "✗ GitHub validation failed (network error)";
 			this.statusText.fg = this.theme.error;
 		} finally {
@@ -416,7 +416,7 @@ export class IntegrationSetup {
 				this.statusText.content = "✗ Linear token invalid";
 				this.statusText.fg = this.theme.error;
 			}
-		} catch (error) {
+		} catch (_error) {
 			this.statusText.content = "✗ Linear validation failed (network error)";
 			this.statusText.fg = this.theme.error;
 		} finally {
@@ -436,48 +436,35 @@ export class IntegrationSetup {
 		const githubRepo = this.githubRepoInput.value.trim();
 		const linearToken = this.linearTokenInput.value.trim();
 
-		const hasGithubToken = githubToken.length > 0;
-		const hasGithubRepo = githubRepo.length > 0;
-		const hasLinearToken = linearToken.length > 0;
-
-		if (
-			(hasGithubToken && !hasGithubRepo) ||
-			(!hasGithubToken && hasGithubRepo)
-		) {
-			this.statusText.content = "✗ GitHub requires both token and repository";
-			this.statusText.fg = this.theme.error;
-			return;
-		}
-
 		if (!this.config.integrations) {
 			this.config.integrations = {};
 		}
 
-		if (hasGithubToken && hasGithubRepo) {
+		if (githubToken && githubRepo) {
 			this.config.integrations.github = {
 				token: githubToken,
 				repo: githubRepo,
 				syncInterval: 30,
 			};
-		} else if (this.config.integrations.github) {
+		} else {
 			delete this.config.integrations.github;
 		}
 
-		if (hasLinearToken) {
+		if (linearToken) {
 			this.config.integrations.linear = {
 				apiKey: linearToken,
 				syncInterval: 30,
 				syncOnlyAssigned: true,
 			};
-		} else if (this.config.integrations.linear) {
+		} else {
 			delete this.config.integrations.linear;
 		}
 
-		if (hasGithubToken || hasLinearToken) {
+		if (this.config.integrations.github || this.config.integrations.linear) {
 			if (!this.config.integrations.sync) {
 				this.config.integrations.sync = { enabled: true };
 			}
-		} else if (this.config.integrations.sync) {
+		} else {
 			delete this.config.integrations.sync;
 		}
 
@@ -490,10 +477,10 @@ export class IntegrationSetup {
 		this.renderer.keyInput.off("keypress", this.boundKeyHandler);
 		this.renderer.keyInput.off("paste", this.boundPasteHandler);
 
-		this.githubTokenInput.destroy();
-		this.githubRepoInput.destroy();
-		this.linearTokenInput.destroy();
+		this.githubTokenInput?.destroy();
+		this.githubRepoInput?.destroy();
+		this.linearTokenInput?.destroy();
 
-		this.container.destroy();
+		this.container?.destroy();
 	}
 }

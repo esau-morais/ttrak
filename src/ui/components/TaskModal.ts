@@ -19,7 +19,6 @@ export interface TaskModalResult {
 
 export class TaskModal {
 	private renderer: CliRenderer;
-	private theme: Theme;
 	private overlay: BoxRenderable;
 	private modal: BoxRenderable;
 	private titleInput: InputRenderable;
@@ -29,8 +28,6 @@ export class TaskModal {
 	private onSubmit: ((result: TaskModalResult) => void) | null = null;
 	private onCancel: (() => void) | null = null;
 	private focusIndex = 0;
-	private mode: ModalMode;
-	private initialTask?: Task;
 
 	constructor(renderer: CliRenderer, theme: Theme) {
 		this.renderer = renderer;

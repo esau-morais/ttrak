@@ -1,6 +1,6 @@
-import { mkdir } from "fs/promises";
-import { homedir } from "os";
-import { join } from "path";
+import { mkdir } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import {
 	type ConfigStore,
 	ConfigStoreSchema,
@@ -30,7 +30,7 @@ export async function loadDataStore(): Promise<DataStore> {
 		}
 
 		return result.data;
-	} catch (error) {
+	} catch (_error) {
 		return DataStoreSchema.parse({});
 	}
 }
@@ -77,7 +77,7 @@ export async function loadConfigStore(): Promise<ConfigStore> {
 		}
 
 		return config;
-	} catch (error) {
+	} catch (_error) {
 		return ConfigStoreSchema.parse({});
 	}
 }

@@ -25,7 +25,7 @@ export async function syncAll(
 	const syncPromises: Promise<void>[] = [];
 
 	if (config.integrations.github) {
-		const lastSync = config.integrations.sync?.lastSync?.["github"];
+		const lastSync = config.integrations.sync?.lastSync?.github;
 		syncPromises.push(
 			syncGitHub(config.integrations.github, lastSync)
 				.then((tasks) => {
@@ -94,14 +94,14 @@ export async function checkSyncNeeded(config: ConfigStore): Promise<boolean> {
 
 	const githubNeeded =
 		config.integrations.github &&
-		(!lastSyncTimes["github"] ||
-			now - new Date(lastSyncTimes["github"]).getTime() >
+		(!lastSyncTimes.github ||
+			now - new Date(lastSyncTimes.github).getTime() >
 				config.integrations.github.syncInterval * 60 * 1000);
 
 	const linearNeeded =
 		config.integrations.linear &&
-		(!lastSyncTimes["linear"] ||
-			now - new Date(lastSyncTimes["linear"]).getTime() >
+		(!lastSyncTimes.linear ||
+			now - new Date(lastSyncTimes.linear).getTime() >
 				config.integrations.linear.syncInterval * 60 * 1000);
 
 	return !!(githubNeeded || linearNeeded);

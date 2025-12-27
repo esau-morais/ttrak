@@ -160,10 +160,7 @@ export function transformGitHubIssueToTask(
 	};
 }
 
-export async function syncGitHub(
-	config: GitHubConfig,
-	lastSync?: string,
-): Promise<Task[]> {
+export async function syncGitHub(config: GitHubConfig): Promise<Task[]> {
 	try {
 		const syncAssignedIssues = config.syncAssignedIssues ?? false;
 		const syncAuthoredPRs = config.syncAuthoredPRs ?? true;
@@ -171,52 +168,46 @@ export async function syncGitHub(
 
 		const allItems: GitHubIssue[] = [];
 
-		if (syncAssignedIssues || syncAuthoredPRs) {
-			const username = await getAuthenticatedUser(config.token);
+		if (syncAssignedIssues) {
+			const url = new URL("https://api.github.com/issues");
+			url.searchParams.set("filter", "assigned");
+			url.searchParams.set("state", "all");
+			url.searchParams.set("per_page", "100");
 
-			if (syncAssignedIssues) {
-				const url = new URL("https://api.github.com/issues");
-				url.searchParams.set("filter", "assigned");
-				url.searchParams.set("state", "all");
-				url.searchParams.set("per_page", "100");
-				if (lastSync) {
-					url.searchParams.set("since", lastSync);
-				}
-
-				const { data } = await fetchFromGitHub(url.toString(), config.token);
-				const repoIssues = data.filter(
-					(item) =>
-						!item.pull_request && item.html_url.includes(`/${owner}/${repo}/`),
-				);
-				allItems.push(...repoIssues);
-			}
-
-			if (syncAuthoredPRs) {
-				const query = `is:pr author:${username} repo:${owner}/${repo}`;
-				const url = new URL("https://api.github.com/search/issues");
-				url.searchParams.set("q", query);
-				url.searchParams.set("per_page", "100");
-
-				const response = await fetch(url.toString(), {
-					headers: {
-						Authorization: `Bearer ${config.token}`,
-						Accept: "application/vnd.github+json",
-						"X-GitHub-Api-Version": "2022-11-28",
-						"User-Agent": "ttrak-tui",
-					},
-				});
-
-				if (response.ok) {
-					const searchResults = (await response.json()) as {
-						items: GitHubIssue[];
-					};
-					allItems.push(...searchResults.items);
-				}
-			}
+			const { data } = await fetchFromGitHub(url.toString(), config.token);
+			const repoIssues = data.filter(
+				(item) =>
+					!item.pull_request && item.html_url.includes(`/${owner}/${repo}/`),
+			);
+			allItems.push(...repoIssues);
 		} else {
-			const response = await fetchGitHubIssues(config, lastSync);
+			const response = await fetchGitHubIssues(config);
 			const issues = response.data.filter((item) => !item.pull_request);
 			allItems.push(...issues);
+		}
+
+		if (syncAuthoredPRs) {
+			const username = await getAuthenticatedUser(config.token);
+			const query = `is:pr author:${username} repo:${owner}/${repo}`;
+			const url = new URL("https://api.github.com/search/issues");
+			url.searchParams.set("q", query);
+			url.searchParams.set("per_page", "100");
+
+			const response = await fetch(url.toString(), {
+				headers: {
+					Authorization: `Bearer ${config.token}`,
+					Accept: "application/vnd.github+json",
+					"X-GitHub-Api-Version": "2022-11-28",
+					"User-Agent": "ttrak-tui",
+				},
+			});
+
+			if (response.ok) {
+				const searchResults = (await response.json()) as {
+					items: GitHubIssue[];
+				};
+				allItems.push(...searchResults.items);
+			}
 		}
 
 		const uniqueItems = Array.from(

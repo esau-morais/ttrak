@@ -25,9 +25,8 @@ export async function syncAll(
 	const syncPromises: Promise<void>[] = [];
 
 	if (config.integrations.github) {
-		const lastSync = config.integrations.sync?.lastSync?.github;
 		syncPromises.push(
-			syncGitHub(config.integrations.github, lastSync)
+			syncGitHub(config.integrations.github)
 				.then((tasks) => {
 					mergeTasks(tasks, store, result);
 				})
